@@ -1,10 +1,9 @@
 from tkinter import *
-import random
-import neurocell
 import matplotlib.pyplot as plt
-import os
-import itertools
 import networkx as nx
+import itertools
+import neurocell
+import random
 
 mind=neurocell.create_network([5*5,16],4)
 
@@ -12,7 +11,6 @@ graph = nx.Graph()
 subset_sizes = [5*5, 16, 4]
 subset_color = [
     "gold",
-    "limegreen",
     "limegreen",
     "darkorange",
 ]
@@ -44,12 +42,9 @@ realsize=16
 
 pix=canvas_size/realsize
 
-canvas=[[0.1 for x in range(realsize)] for y in range(realsize)] 
+canvas=[[0.1 for x in range(realsize)] for y in range(realsize)]
 cellx,celly=15,15
 aix,aiy,=15,15
-
-canvas_width = canvas_size
-canvas_height = canvas_size
 
 
 def cellvision(vis):
@@ -104,7 +99,7 @@ def automove(out):
 	if aiy==realsize:
 		aiy=1
 	if aiy==0:
-		aiy=realsize-1		
+		aiy=realsize-1
 	auto(aix,aiy)
 	return
 
@@ -126,7 +121,7 @@ def move(out):
 	if celly==realsize:
 		celly=1
 	if celly==0:
-		celly=realsize-1		
+		celly=realsize-1
 	cell(cellx,celly)
 	return
 def goodpoint(x,y):
@@ -182,9 +177,9 @@ def userbadpoint(event):
 
 master = Tk()
 master.title( "Чашка Петри" )
-w = Canvas(master, 
-           width=canvas_width, 
-           height=canvas_height)
+w = Canvas(master, bg="black",
+           width=canvas_size,
+           height=canvas_size)
 w.pack(expand = YES, fill = BOTH)
 #w.bind( "<G>", mind.good(-1,100) )
 #w.bind( "<B>", mind.bad(-1,100) )
@@ -199,56 +194,81 @@ allg=0
 log=[]
 log1=[]
 log2=[]
+rev=True
 while True:
-	if iterat%50==0:
-		print(log)
+	if iterat>=1000:
+		rev=False
+	if iterat%200==0:
 		plt.plot(log2)
-		plt.pause(0.0001)
+		plt.pause(0.0000001)
 	iterat+=1
-	print()
 	good=0
-	canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=1
-	canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=1
-	canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=-1
-
+	if rev:
+		canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=1
+		canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=1
+		canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=-1
+	else:
+		canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=1
+		canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=-1
+		canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=-1
 	canvas_print()
 	
 	visn=cellvision(5)
 	visnn=cellvision(-1)
-	print(visnn)
-	if iterat!=0:
-		for i in range(len(visnn)):
-			if visnn[i]==1:
-				print(i,visnn[i])
-				mind.good(i,50)
-			if visnn[i]==-1:
-				mind.bad(i,50)
-			else:
-				mind.bad(i,10)	
-
+	if rev:
+		if iterat!=0:
+			for i in range(len(visnn)):
+				if visnn[i]==1:
+					mind.good(i,50)
+				if visnn[i]==-1:
+					mind.bad(i,50)
+				else:
+					mind.bad(i,10)
+	else:
+		if iterat!=0:
+			for i in range(len(visnn)):
+				if visnn[i]==1:
+					mind.bad(i, 50)
+				if visnn[i]==-1:
+					mind.good(i,50)
+				else:
+					mind.bad(i,10)
 	out=mind.out(visn)
 	move(out)
 
-	
-	if canvas[cellx][celly]==1:
-		neurogood+=1
-		#mind.good(-1,100)
-		good+=50
-		canvas[cellx][celly]=0.1
-	elif canvas[cellx][celly]==-1:
-		neurogood-=1
-		#mind.bad(-1,100)
-		good-=50
-		canvas[cellx][celly]=0.1
+	if rev:
+		if canvas[cellx][celly]==1:
+			neurogood+=1
+			#mind.good(-1,100)
+			good+=50
+			canvas[cellx][celly]=0.1
+		elif canvas[cellx][celly]==-1:
+			neurogood-=1
+			#mind.bad(-1,100)
+			good-=50
+			canvas[cellx][celly]=0.1
+		else:
+			#mind.bad(-1,20)
+			good-=10
 	else:
-		#mind.bad(-1,20)
-		good-=10
+		if canvas[cellx][celly]==1:
+			neurogood-=1
+			#mind.good(-1,100)
+			good-=50
+			canvas[cellx][celly]=0.1
+		elif canvas[cellx][celly]==-1:
+			neurogood+=1
+			#mind.bad(-1,100)
+			good+=50
+			canvas[cellx][celly]=0.1
+		else:
+			#mind.bad(-1,20)
+			good-=10
 	#print(input())
 	allg+=good
 	log2.append(allg)
 
-	master.title( "Чашка Петри: "+" i:"+ str(iterat)+" good:"+str(good)+" neuro:"+str(neurogood)+" auto:"+str(autogood)+" co:"+str(co))
-	print(good,"очков положительного подкрепления за этот ход")
+	master.title( "Чашка Петри: "+" i:"+ str(iterat)+" good:"+str(good))
 	master.update()
 plt.show()
 master.mainloop()

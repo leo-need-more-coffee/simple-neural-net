@@ -1,18 +1,13 @@
 import random
 import math
 
-done=-1
-layers=[]
 
 def okr(num):
     #num = int(num + (0.5 if num > 0 else -0.5))
     return num
 
 def act(num):
-    try:
-        return(math.tanh(num))
-    except OverflowError:
-        return(0)
+    return(math.tanh(num))
 
 
 class Neuron(object):
@@ -27,10 +22,8 @@ class Neuron(object):
             out=0
             for i in range(len(input)):
                 self.childs[i].out=input[i]
-                out+=act(act(self.childs[i].out)*self.childs[i].weight)
-
+                out+=act(self.childs[i].out*self.childs[i].weight)
             self.out=act(out)
-            #print(self.out)
             return(self.out)
         else:
             out=0
@@ -42,21 +35,21 @@ class Neuron(object):
     def chweight(self,mlt):
         if self.isultra:
             for i in range(len(self.childs)):
-                if self.childs[i].out>=0.5:
+                if self.childs[i].out>=0.4:
                     self.childs[i].weight+=mlt
-                if self.childs[i].out<=-0.5:
-                    self.childs[i].weight-=mlt               
-            if self.out>=0.5:
+                if self.childs[i].out<=-0.4:
+                    self.childs[i].weight-=mlt
+            if self.out>=0.4:
                 self.weight+=mlt
-            if self.out<=-0.5:
-                self.weight-=mlt 
+            if self.out<=-0.4:
+                self.weight-=mlt
         else:
             for i in range(len(self.childs)):
                 self.childs[i].chweight(mlt)
-            if self.out>=0.5:
+            if self.out>=0.4:
                 self.weight+=mlt
-            if self.out<=-0.5:
-                self.weight-=mlt 
+            if self.out<=-0.4:
+                self.weight-=mlt
         return
 
 class Mind(object):
@@ -64,56 +57,40 @@ class Mind(object):
         self.outs = childs
 
     def out(self,input):
-        maxx,indx=-1,None
+        maxx=-float('inf')
         maxxlist=list()
         for i in range(len(self.outs)):
             now=self.outs[i].getout(input)
-            '''
-            if i==0:
-                print("▲",okr(now*10)/10)
-            if i==1:
-                print("▼",okr(now*10)/10)
-            if i==2:
-                print("ᐅ",okr(now*10)/10)
-            if i==3:
-                print("ᐊ",okr(now*10)/10)
-            '''
             if now==maxx:
-                   maxxlist.append(i)
+                maxxlist.append(i)
             if now> maxx:
                 maxx=now
                 maxxlist=[i]
-                
         return(random.choice(maxxlist))
+
     def bad(self,out,cof):
         if out ==-1:
             for i in range(len(self.outs)):
-                self.outs[i].chweight(-0.0001*cof/len(self.outs))
+                self.outs[i].chweight(-0.01*cof/len(self.outs))
         else:
-            self.outs[out].chweight(-0.0001*cof)
-        return True
+            self.outs[out].chweight(-0.01*cof)
+        return
     def good(self,out,cof):
         if out ==-1:
             for i in range(len(self.outs)):
-                self.outs[i].chweight(0.0001*cof/len(self.outs))
+                self.outs[i].chweight(0.01*cof/len(self.outs))
         else:
-            self.outs[out].chweight(0.0001*cof)
-        return True
+            self.outs[out].chweight(0.01*cof)
+        return
 
 def create_neuron(layers):
     if len(layers)==1:
-        global done
-        
-        if done%1000==0:
-            print(done,"/",16*16*16*4)
-        neuron=Neuron([],random.uniform(-0.5,0.5),True)
+        neuron=Neuron([],random.uniform(-1,1),True)
         for j in range(layers[-1]):
-            done+=1
-            neuron.childs.append(Neuron(None,random.uniform(-0.5,0.5),False))
+            neuron.childs.append(Neuron(None,random.uniform(-1,1),False))
         return neuron
     else:
-        done+=1
-        neuron=Neuron([],random.uniform(-0.5, 0.5),False)
+        neuron=Neuron([],random.uniform(-1, 1),False)
         for j in range(layers[-1]):
             neuron.childs.append(create_neuron(layers[:-1]))
         return neuron
@@ -123,3 +100,4 @@ def create_network(layers,p):
     for i in range(p):
         mind.outs.append(create_neuron(layers))
     return(mind)
+
