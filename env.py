@@ -33,6 +33,7 @@ pos = nx.multipartite_layout(G, subset_key="layer")
 plt.figure(figsize=(8, 8))
 nx.draw(G, pos, node_color=color, with_labels=False)
 #plt.axis("equal")
+plt.suptitle("Графическое представление нейронной сети.")
 plt.show()
 
 
@@ -81,28 +82,6 @@ def cellvision(vis):
 			inp.append(0.1)
 
 	return(inp)
-def automove(out):
-	global aix
-	global aiy
-	if out==0:
-		aiy-=1
-	if out==1:
-		aiy+=1
-	if out==2:
-		aix+=1
-	if out==3:
-		aix-=1
-	if aix==realsize:
-		aix=1
-	if aix==0:
-		aix=realsize-1
-	if aiy==realsize:
-		aiy=1
-	if aiy==0:
-		aiy=realsize-1
-	auto(aix,aiy)
-	return
-
 def move(out):
 	global cellx
 	global celly
@@ -144,14 +123,6 @@ def cell(x,y):
 	x1, y1 = ( x - pix/2 ), ( y - pix/2 )
 	x2, y2 = ( x + pix/2 ), ( y + pix/2 )
 	w.create_oval( x1, y1, x2, y2, outline=color,fill = color )
-
-def auto(x,y):
-	color = "#ffff00"
-	x,y=x*pix,y*pix
-	x1, y1 = ( x - pix/2 ), ( y - pix/2 )
-	x2, y2 = ( x + pix/2 ), ( y + pix/2 )
-	w.create_oval( x1, y1, x2, y2, outline=color,fill = color )
-
 
 def canvas_print():
 	global canvas
@@ -195,13 +166,16 @@ log=[]
 log1=[]
 log2=[]
 rev=True
+end=int(input("кол-во ходов:"))
 while True:
+	iterat += 1
+	if iterat == end+1:
+		break
 	if iterat>=1000:
-		rev=False
+		pass#rev=False
 	if iterat%200==0:
 		plt.plot(log2)
 		plt.pause(0.0000001)
-	iterat+=1
 	good=0
 	if rev:
 		canvas[random.randint(0,realsize-1)][random.randint(0,realsize-1)]=1
@@ -267,7 +241,7 @@ while True:
 	#print(input())
 	allg+=good
 	log2.append(allg)
-
+	plt.suptitle("График обучения при условии: 1 единица подкрепления = "+str(neurocell.defch)+" изменения весов")
 	master.title( "Чашка Петри: "+" i:"+ str(iterat)+" good:"+str(good))
 	master.update()
 plt.show()

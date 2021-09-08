@@ -1,6 +1,7 @@
 import random
 import math
 
+defch=float(input("Введите число(дефолт - 0.01):"))
 
 def okr(num):
     #num = int(num + (0.5 if num > 0 else -0.5))
@@ -71,16 +72,16 @@ class Mind(object):
     def bad(self,out,cof):
         if out ==-1:
             for i in range(len(self.outs)):
-                self.outs[i].chweight(-0.01*cof/len(self.outs))
+                self.outs[i].chweight(-defch*cof/len(self.outs))
         else:
-            self.outs[out].chweight(-0.01*cof)
+            self.outs[out].chweight(-defch*cof)
         return
     def good(self,out,cof):
         if out ==-1:
             for i in range(len(self.outs)):
-                self.outs[i].chweight(0.01*cof/len(self.outs))
+                self.outs[i].chweight(defch*cof/len(self.outs))
         else:
-            self.outs[out].chweight(0.01*cof)
+            self.outs[out].chweight(defch*cof)
         return
 
 def create_neuron(layers):
