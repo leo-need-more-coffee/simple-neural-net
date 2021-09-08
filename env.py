@@ -167,12 +167,13 @@ log1=[]
 log2=[]
 rev=True
 end=int(input("кол-во ходов:"))
+revv=int(input("реверс на ходу:"))
 while True:
 	iterat += 1
 	if iterat == end+1:
 		break
-	if iterat>=1000:
-		pass#rev=False
+	if iterat==revv+1:
+		rev=False
 	if iterat%200==0:
 		plt.plot(log2)
 		plt.pause(0.0000001)
@@ -241,7 +242,10 @@ while True:
 	#print(input())
 	allg+=good
 	log2.append(allg)
-	plt.suptitle("График обучения при условии: 1 единица подкрепления = "+str(neurocell.defch)+" изменения весов")
+	if rev:
+		plt.suptitle("График обучения при условии: 1 единица подкрепления = "+str(neurocell.defch)+" изменения весов")
+	else:
+		plt.suptitle("График обучения при условии: 1 единица подкрепления = " + str(neurocell.defch) + " изменения весов\n Изменение правил произошло на ходу "+str(revv))
 	master.title( "Чашка Петри: "+" i:"+ str(iterat)+" good:"+str(good))
 	master.update()
 plt.show()
