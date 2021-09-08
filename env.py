@@ -1,42 +1,9 @@
 from tkinter import *
 import matplotlib.pyplot as plt
-import networkx as nx
-import itertools
 import neurocell
 import random
 
 mind=neurocell.create_network([5*5,16],4)
-
-graph = nx.Graph()
-subset_sizes = [5*5, 16, 4]
-subset_color = [
-    "gold",
-    "limegreen",
-    "darkorange",
-]
-
-
-def multilayered_graph(*subset_sizes):
-    extents = nx.utils.pairwise(itertools.accumulate((0,) + subset_sizes))
-    layers = [range(start, end) for start, end in extents]
-    G = nx.Graph()
-    for (i, layer) in enumerate(layers):
-        G.add_nodes_from(layer, layer=i)
-    for layer1, layer2 in nx.utils.pairwise(layers):
-        G.add_edges_from(itertools.product(layer1, layer2))
-    return G
-
-
-G = multilayered_graph(*subset_sizes)
-color = [subset_color[data["layer"]] for v, data in G.nodes(data=True)]
-pos = nx.multipartite_layout(G, subset_key="layer")
-plt.figure(figsize=(8, 8))
-nx.draw(G, pos, node_color=color, with_labels=False)
-#plt.axis("equal")
-plt.suptitle("Графическое представление нейронной сети.")
-plt.show()
-
-
 
 canvas_size=640
 realsize=16
@@ -47,7 +14,6 @@ canvas=[[0.1 for x in range(realsize)] for y in range(realsize)]
 cellx,celly=15,15
 aix,aiy,=15,15
 
-
 def cellvision(vis):
 	global cellx
 	global celly
@@ -56,32 +22,31 @@ def cellvision(vis):
 	if vis !=-1:
 		for i in range(vis):
 			for j in range(vis):
-				try:
-					inp.append(canvas[int(cellx-vis/2+1+j)][int(celly-vis/2+1+i)])
-					#auto(int(cellx-vis/2+1+j),int(celly-vis/2+1+i))
-					#print(canvas[int(cellx-vis/2+j)][int(celly-vis/2+i)]," ",end="")
-				except:
-					inp.append(0.1)
+				if int(cellx-vis//2+1+j) >= realsize-1 and int(celly-vis//2+1+i) >= realsize-1 and int(cellx-vis//2+1+j) <= 0  and int(celly-vis//2+1+i) <= 0:
+					inp.append(canvas[int(cellx-vis//2+1+j)][int(celly-vis//2+1+i)])
+				else:
+					inp.append(0)
 			#print()
 	else:
-		try:
+		if cellx >= realsize-1 and celly-1 >= realsize-1 and cellx <= 0 and celly-1 <= 0:
 			inp.append(canvas[cellx][celly-1])
-		except:
-			inp.append(0.1)
-		try:
+		else:
+			inp.append(0)
+		if cellx >= realsize-1 and celly+1 >= realsize-1 and cellx <= 0 and celly+1 <= 0:
 			inp.append(canvas[cellx][celly+1])
-		except:
+		else:
 			inp.append(0.1)
-		try:
+		if cellx+1 >= realsize-1 and celly >= realsize-1 and cellx+1 <= 0 and celly <= 0:
 			inp.append(canvas[cellx+1][celly])
-		except:
+		else:
 			inp.append(0.1)
-		try:
+		if cellx-1 >= realsize-1 and celly >= realsize-1 and cellx-1 <= 0 and celly <= 0:
 			inp.append(canvas[cellx-1][celly])
-		except:
+		else:
 			inp.append(0.1)
 
 	return(inp)
+
 def move(out):
 	global cellx
 	global celly
@@ -103,6 +68,7 @@ def move(out):
 		celly=realsize-1
 	cell(cellx,celly)
 	return
+
 def goodpoint(x,y):
 	color = "#476042"
 	x,y=x*pix,y*pix
@@ -138,6 +104,7 @@ def canvas_print():
 			if canvas[x][y] == 0:
 				cell(x,y)
 		ans+="\n"
+
 def usergoodpoint(event):
 	x,y=int(event.x/pix),int(event.y/pix)
 	canvas[x][y]=1
@@ -147,35 +114,42 @@ def userbadpoint(event):
 	canvas[x][y]=-1
 
 master = Tk()
-master.title( "Чашка Петри" )
+master.title( "Среда обучения" )
 w = Canvas(master, bg="black",
            width=canvas_size,
            height=canvas_size)
 w.pack(expand = YES, fill = BOTH)
-#w.bind( "<G>", mind.good(-1,100) )
-#w.bind( "<B>", mind.bad(-1,100) )
 w.bind( "<B1-Motion>", usergoodpoint )
 w.bind( "<B3-Motion>", userbadpoint )
 
-neurogood=0
-autogood=0
-co=0
 iterat=-1
 allg=0
-log=[]
-log1=[]
-log2=[]
+graphic=[]
 rev=True
-end=int(input("кол-во ходов:"))
-revv=int(input("реверс на ходу:"))
+neurocell.defch=input("Введите число(дефолт - 0.01):")
+if neurocell.defch=="":
+	neurocell.defch=0.01
+else:
+	neurocell.defch=float(neurocell.defch)
+end=input("кол-во ходов:")
+if end=="":
+	end=-1
+else:
+	end=int(end)+1
+revv=input("реверс на ходу:")
+if revv=="":
+	revv=-1
+else:
+	revv=int(revv)+1
+
 while True:
 	iterat += 1
-	if iterat == end+1:
+	if iterat == end:
 		break
-	if iterat==revv+1:
+	if iterat==revv:
 		rev=False
 	if iterat%200==0:
-		plt.plot(log2)
+		plt.plot(graphic)
 		plt.pause(0.0000001)
 	good=0
 	if rev:
@@ -213,40 +187,30 @@ while True:
 
 	if rev:
 		if canvas[cellx][celly]==1:
-			neurogood+=1
-			#mind.good(-1,100)
 			good+=50
 			canvas[cellx][celly]=0.1
 		elif canvas[cellx][celly]==-1:
-			neurogood-=1
-			#mind.bad(-1,100)
 			good-=50
 			canvas[cellx][celly]=0.1
 		else:
-			#mind.bad(-1,20)
 			good-=10
 	else:
 		if canvas[cellx][celly]==1:
-			neurogood-=1
-			#mind.good(-1,100)
 			good-=50
 			canvas[cellx][celly]=0.1
 		elif canvas[cellx][celly]==-1:
-			neurogood+=1
-			#mind.bad(-1,100)
 			good+=50
 			canvas[cellx][celly]=0.1
 		else:
-			#mind.bad(-1,20)
 			good-=10
 	#print(input())
 	allg+=good
-	log2.append(allg)
+	graphic.append(allg)
 	if rev:
 		plt.suptitle("График обучения при условии: 1 единица подкрепления = "+str(neurocell.defch)+" изменения весов")
 	else:
 		plt.suptitle("График обучения при условии: 1 единица подкрепления = " + str(neurocell.defch) + " изменения весов\n Изменение правил произошло на ходу "+str(revv))
-	master.title( "Чашка Петри: "+" i:"+ str(iterat)+" good:"+str(good))
+	master.title( "Среда обучения: "+" i:"+ str(iterat)+" good:"+str(good))
 	master.update()
 plt.show()
 master.mainloop()

@@ -1,8 +1,7 @@
 import random
 import math
 
-defch=float(input("Введите число(дефолт - 0.01):"))
-
+global defch
 def okr(num):
     #num = int(num + (0.5 if num > 0 else -0.5))
     return num
