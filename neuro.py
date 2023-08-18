@@ -83,7 +83,7 @@ class NeuralNetwork:
             data = json.loads(f.read())
             return NeuralNetwork(data['shape'], data['weights'])
 
-    def show(self, name):
+    def show(self, name='graph.png'):
         import matplotlib.pyplot as plt
         import networkx as nx
         from networkx.drawing.nx_agraph import graphviz_layout
@@ -118,4 +118,5 @@ class NeuralNetwork:
 
         plt.axis('off')
         plt.title(f"Neural Network Weights")
-        plt.savefig(f'{name}.png')
+        plt.show()
+        #plt.savefig(f'{name}.png')

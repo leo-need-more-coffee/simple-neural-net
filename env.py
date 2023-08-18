@@ -128,7 +128,7 @@ while True:
 	good = 0
 	if iterat % 10000 == 0:
 		plt.close()
-		mind.plot_weights_graph()
+		mind.show()
 
 	canvas[random.randint(0, realsize - 1)][random.randint(0, realsize - 1)] = 1
 	canvas[random.randint(0, realsize - 1)][random.randint(0, realsize - 1)] = -1
