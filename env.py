@@ -126,6 +126,7 @@ while True:
 		plt.plot(graphic)
 		plt.pause(0.0000001)
 	good = 0
+
 	if iterat % 10000 == 0:
 		plt.close()
 		mind.show()
